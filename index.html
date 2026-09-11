@@ -1,0 +1,2770 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PeetX | Modern Decentralized Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --bg-dark: #090514;
+            --card-bg: rgba(22, 13, 38, 0.85);
+            --card-hover: rgba(38, 21, 64, 0.9);
+            --border-color: rgba(255, 215, 0, 0.18);
+            --purple-glow: #9d4edd;
+            --purple-deep: #5a189a;
+            --gold-glow: #ffd700;
+            --gold-accent: #ffb703;
+            --green-glow: #00ff88;
+            --text-main: #ffffff;
+            --text-sub: #c4b5fd;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Cairo', sans-serif;
+            scroll-behavior: smooth;
+            line-height: 1.6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        #web3-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        .glow-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            background: 
+                radial-gradient(circle at 15% 15%, rgba(157, 78, 221, 0.25) 0%, transparent 45%),
+                radial-gradient(circle at 85% 85%, rgba(255, 215, 0, 0.15) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(90, 24, 154, 0.2) 0%, transparent 60%);
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 3%;
+            background: rgba(9, 5, 20, 0.92);
+            backdrop-filter: blur(18px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar-toggle-btn {
+            background: rgba(255, 215, 0, 0.12);
+            border: 1px solid var(--gold-glow);
+            color: var(--gold-glow);
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .sidebar-toggle-btn:hover {
+            background: var(--gold-glow);
+            color: #000;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .notification-bell-btn {
+            position: relative;
+            background: rgba(157, 78, 221, 0.12);
+            border: 1px solid var(--purple-glow);
+            color: var(--gold-glow);
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .notification-bell-btn:hover {
+            background: var(--purple-glow);
+            color: #fff;
+            box-shadow: 0 0 15px rgba(157, 78, 221, 0.4);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ef4444;
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 2px 6px;
+            border-radius: 50%;
+            display: none;
+        }
+
+        .notifications-dropdown {
+            position: fixed;
+            top: 75px;
+            left: 20px;
+            width: 320px;
+            background: rgba(15, 8, 30, 0.98);
+            border: 1px solid var(--gold-glow);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            backdrop-filter: blur(15px);
+        }
+
+        .notifications-header {
+            padding: 12px 15px;
+            background: rgba(90, 24, 154, 0.4);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 800;
+            font-size: 0.95rem;
+            color: var(--gold-glow);
+        }
+
+        .notifications-body {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .notification-item {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            color: var(--text-main);
+            line-height: 1.5;
+        }
+
+        .notification-item span.time {
+            display: block;
+            font-size: 0.7rem;
+            color: var(--text-sub);
+            margin-top: 4px;
+        }
+
+        .notifications-empty {
+            text-align: center;
+            color: var(--text-sub);
+            padding: 20px;
+            font-size: 0.85rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 22px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-sub);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--gold-glow);
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 998;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.3s ease;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            max-width: 380px;
+            height: 100%;
+            background: rgba(15, 8, 30, 0.98);
+            border-right: 1px solid var(--border-color);
+            z-index: 999;
+            padding: 25px 20px;
+            overflow-y: auto;
+            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.8);
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-close-btn {
+            background: none;
+            border: none;
+            color: var(--text-sub);
+            font-size: 1.4rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .sidebar-close-btn:hover {
+            color: var(--gold-glow);
+        }
+
+        .sidebar-quick-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .quick-box {
+            background: rgba(157, 78, 221, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.25);
+            border-radius: 14px;
+            padding: 14px 10px;
+            text-align: center;
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 700;
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .quick-box i {
+            font-size: 1.3rem;
+            color: var(--gold-glow);
+        }
+
+        .quick-box:hover {
+            background: var(--purple-deep);
+            border-color: var(--gold-glow);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(157, 78, 221, 0.3);
+        }
+
+        .sidebar-section-title {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--gold-glow);
+            margin: 15px 0 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sidebar-accordion-btn {
+            width: 100%;
+            background: rgba(255, 215, 0, 0.06);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 12px 16px;
+            color: var(--gold-glow);
+            font-size: 0.95rem;
+            font-weight: 800;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 15px;
+            font-family: inherit;
+        }
+
+        .sidebar-accordion-btn:hover {
+            background: rgba(255, 215, 0, 0.12);
+            border-color: var(--gold-glow);
+        }
+
+        .sidebar-accordion-btn .chevron-icon {
+            transition: transform 0.3s ease;
+            font-size: 0.85rem;
+        }
+
+        .sidebar-accordion-btn.active .chevron-icon {
+            transform: rotate(180deg);
+        }
+
+        .sidebar-accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease, margin-top 0.3s ease;
+            margin-top: 0;
+        }
+
+        .sidebar-accordion-content.active {
+            max-height: 1400px;
+            margin-top: 10px;
+        }
+
+        .sidebar-link-btn {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.04);
+            color: #fff;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .sidebar-link-btn.telegram-chan {
+            background: rgba(34, 158, 217, 0.15);
+            border-color: rgba(34, 158, 217, 0.4);
+            color: #38bdf8;
+        }
+
+        .sidebar-link-btn.telegram-grp {
+            background: rgba(16, 185, 129, 0.15);
+            border-color: rgba(16, 185, 129, 0.4);
+            color: #34d399;
+        }
+
+        .sidebar-link-btn.leaders-btn {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(157, 78, 221, 0.2));
+            border-color: var(--gold-glow);
+            color: var(--gold-glow);
+        }
+
+        .sidebar-link-btn:hover {
+            transform: translateX(4px);
+            filter: brightness(1.2);
+        }
+
+        .ambassador-box {
+            background: rgba(157, 78, 221, 0.08);
+            border: 1px solid rgba(157, 78, 221, 0.3);
+            border-radius: 14px;
+            padding: 12px;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .ambassador-title {
+            color: var(--gold-glow);
+            font-size: 0.88rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .ambassador-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--purple-deep), var(--purple-glow));
+            color: #fff;
+            border: 1px solid var(--gold-glow);
+            padding: 9px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 6px;
+            font-family: inherit;
+        }
+
+        .ambassador-btn:hover {
+            filter: brightness(1.2);
+            transform: translateY(-2px);
+        }
+
+        .ambassador-warning {
+            display: none;
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid #ef4444;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-top: 10px;
+            line-height: 1.5;
+            text-align: center;
+        }
+
+        .domain-check-box {
+            background: rgba(255, 215, 0, 0.06);
+            border: 1px dashed var(--gold-glow);
+            border-radius: 14px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .domain-badge {
+            display: inline-block;
+            background: var(--gold-glow);
+            color: #000;
+            font-weight: 900;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin: 8px 0;
+        }
+
+        .domain-warning {
+            color: #ef4444;
+            font-size: 0.78rem;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+
+        section, .showcase-container, .stats-container, .contracts-section, .features-section, .partners-section, .faq-section, .wallets-section, .roadmap-section, .blockchain-edu-section, .api-section, .social-channels-section, .hero-gallery-section {
+            width: 100% !important;
+            max-width: 100% !important;
+            padding-left: 3% !important;
+            padding-right: 3% !important;
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+        }
+
+        .hero {
+            padding-top: 120px;
+            padding-bottom: 20px;
+            text-align: center;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 18px;
+            background: rgba(255, 215, 0, 0.08);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 30px;
+            color: var(--gold-glow);
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.15);
+        }
+
+        .hero h1 {
+            font-size: 3.2rem;
+            font-weight: 900;
+            line-height: 1.3;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(90deg, var(--gold-glow), var(--purple-glow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.15rem;
+            color: var(--text-sub);
+            max-width: 900px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+
+        .hero-gallery-section {
+            padding-top: 20px;
+            padding-bottom: 30px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .flip-card-container {
+            width: 100%;
+            max-width: 500px;
+            aspect-ratio: 1 / 1;
+            perspective: 1000px;
+            cursor: pointer;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+
+        .flip-card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 24px;
+            overflow: hidden;
+            border: 2px solid var(--border-color);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+            background: linear-gradient(135deg, rgba(22, 13, 38, 0.95), rgba(90, 24, 154, 0.4));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+        }
+
+        .blockchain-art-box {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .art-icon-ring {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background: rgba(157, 78, 221, 0.2);
+            border: 2px dashed var(--gold-glow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: var(--gold-glow);
+            margin-bottom: 20px;
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.25);
+            animation: pulseArtRing 3s infinite ease-in-out;
+        }
+
+        @keyframes pulseArtRing {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 15px rgba(255, 215, 0, 0.2); }
+            50% { transform: scale(1.06); box-shadow: 0 0 30px rgba(255, 215, 0, 0.5); }
+        }
+
+        .art-nodes-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .art-mini-node {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-color);
+            padding: 8px 14px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-sub);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .flip-card-face.face-1 { transform: rotateY(0deg); }
+        .flip-card-face.face-2 { transform: rotateY(120deg); }
+        .flip-card-face.face-3 { transform: rotateY(240deg); }
+
+        .social-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .social-card {
+            position: relative;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: 0.3s;
+            backdrop-filter: blur(12px);
+        }
+
+        .social-card .social-info {
+            filter: blur(2.5px);
+            opacity: 0.65;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+        }
+
+        .social-card:hover .social-info {
+            filter: blur(1px);
+            opacity: 0.85;
+        }
+
+        .social-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            color: #fff;
+        }
+
+        .social-card.youtube .social-icon { background: #ff0000; box-shadow: 0 0 15px rgba(255, 0, 0, 0.4); }
+        .social-card.facebook .social-icon { background: #1877f2; box-shadow: 0 0 15px rgba(24, 119, 242, 0.4); }
+        .social-card.tiktok .social-icon { background: #000000; border: 1px solid #00f2fe; box-shadow: 0 0 15px rgba(0, 242, 254, 0.4); }
+        .social-card.twitter .social-icon { background: #000000; border: 1px solid #fff; box-shadow: 0 0 15px rgba(255, 255, 255, 0.3); }
+
+        .coming-soon-badge {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, var(--gold-glow), var(--gold-accent));
+            color: #000;
+            font-weight: 900;
+            font-size: 0.85rem;
+            padding: 6px 16px;
+            border-radius: 30px;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+            z-index: 5;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .showcase-container {
+            padding: 10px 3% 40px;
+        }
+
+        .slider-wrapper {
+            position: relative;
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+            background: var(--card-bg);
+            min-height: 380px;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .slide {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out;
+            display: flex;
+            align-items: flex-end;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .slide.active {
+            opacity: 1;
+        }
+
+        .slide-1 { background: radial-gradient(circle at center, #3c096c, #090514), url('https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&w=1200&q=80') center/cover; }
+        .slide-2 { background: radial-gradient(circle at center, #5a189a, #090514), url('https://images.unsplash.com/photo-1642543492481-44e81e3914a7?auto=format&fit=crop&w=1200&q=80') center/cover; }
+        .slide-3 { background: radial-gradient(circle at center, #240046, #090514), url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=1200&q=80') center/cover; }
+        .slide-4 { background: radial-gradient(circle at center, #7b2cbf, #090514), url('https://images.unsplash.com/photo-1639762681057-408e52192e55?auto=format&fit=crop&w=1200&q=80') center/cover; }
+        .slide-5 { background: radial-gradient(circle at center, #10002b, #090514), url('https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?auto=format&fit=crop&w=1200&q=80') center/cover; }
+
+        .slide-content {
+            position: relative;
+            z-index: 2;
+            padding: 40px 30px;
+            background: linear-gradient(to top, rgba(9, 5, 20, 0.95), rgba(9, 5, 20, 0.4), transparent);
+            width: 100%;
+            text-align: left;
+        }
+
+        .slide-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: var(--gold-glow);
+            color: #000;
+            font-weight: 800;
+            font-size: 0.75rem;
+            margin-bottom: 12px;
+        }
+
+        .slide-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .slide-desc {
+            font-size: 1rem;
+            color: var(--text-sub);
+            max-width: 800px;
+        }
+
+        .slider-nav {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10;
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .dot.active {
+            background: var(--gold-glow);
+            width: 25px;
+            border-radius: 10px;
+        }
+
+        .stats-section {
+            padding-bottom: 40px;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        .stat-card:hover {
+            border-color: var(--gold-glow);
+            transform: translateY(-4px);
+        }
+
+        .stat-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .stat-icon {
+            width: 45px;
+            height: 45px;
+            background: rgba(157, 78, 221, 0.2);
+            color: var(--gold-glow);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .live-tag {
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            background: rgba(0, 255, 136, 0.1);
+            color: var(--green-glow);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--green-glow);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--green-glow);
+        }
+
+        .stat-val {
+            font-size: 2.2rem;
+            font-weight: 900;
+            margin: 8px 0;
+            color: var(--gold-glow);
+            font-family: monospace;
+        }
+
+        .liquidity-explain-box {
+            background: rgba(15, 8, 30, 0.85);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 25px;
+            margin-top: 20px;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 260px;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .blockchain-edu-section {
+            padding: 40px 3% 70px;
+            background: rgba(15, 8, 30, 0.6);
+            margin: 40px 0;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .edu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .edu-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            transition: 0.3s;
+        }
+
+        .edu-card:hover {
+            border-color: var(--gold-glow);
+            transform: translateY(-5px);
+        }
+
+        .edu-diagram {
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 15px 0;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            border: 1px dashed rgba(255, 215, 0, 0.2);
+        }
+
+        .block-node {
+            width: 45px;
+            height: 45px;
+            background: var(--purple-deep);
+            border: 2px solid var(--gold-glow);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.1rem;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .block-chain-link {
+            height: 2px;
+            width: 30px;
+            background: var(--green-glow);
+            box-shadow: 0 0 8px var(--green-glow);
+        }
+
+        .contracts-section {
+            padding-bottom: 70px;
+        }
+
+        .contracts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .contract-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 22px;
+            transition: 0.3s;
+        }
+
+        .contract-card:hover {
+            border-color: var(--gold-glow);
+            transform: translateY(-4px);
+        }
+
+        .contract-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .contract-title {
+            font-size: 0.98rem;
+            font-weight: 800;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .contract-title i {
+            color: var(--gold-glow);
+        }
+
+        .contract-box {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px dashed var(--border-color);
+            padding: 10px 14px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            min-height: 50px;
+        }
+
+        .contract-address {
+            font-size: 0.82rem;
+            color: var(--gold-glow);
+            font-family: monospace;
+            word-break: break-all;
+        }
+
+        .btn-copy {
+            background: rgba(255, 215, 0, 0.15);
+            color: var(--gold-glow);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: 0.3s;
+            white-space: nowrap;
+        }
+
+        .btn-copy:hover {
+            background: var(--gold-glow);
+            color: #000;
+        }
+
+        .blue-gap-spacer {
+            height: 40px;
+            background: radial-gradient(ellipse at center, rgba(30, 58, 138, 0.35) 0%, transparent 75%);
+            margin: 10px 0 50px;
+            border-radius: 50%;
+            filter: blur(8px);
+        }
+
+        .features-section {
+            padding-bottom: 70px;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+        }
+
+        .section-desc {
+            text-align: center;
+            color: var(--text-sub);
+            max-width: 800px;
+            margin: 0 auto 40px;
+            font-size: 0.95rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 28px;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card:hover {
+            border-color: var(--gold-glow);
+            background: var(--card-hover);
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            width: 55px;
+            height: 55px;
+            border-radius: 16px;
+            background: rgba(157, 78, 221, 0.2);
+            color: var(--purple-glow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .feature-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .feature-desc {
+            color: var(--text-sub);
+            font-size: 0.9rem;
+            line-height: 1.7;
+        }
+
+        .partners-box {
+            background: linear-gradient(135deg, rgba(22, 13, 38, 0.95), rgba(90, 24, 154, 0.2));
+            border: 1px solid var(--gold-glow);
+            border-radius: 20px;
+            padding: 18px 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .partners-conditions {
+            background: rgba(255, 215, 0, 0.05);
+            border-left: 4px solid var(--gold-glow);
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        .partners-conditions h3 {
+            color: var(--gold-glow);
+            font-size: 0.95rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .partners-conditions ul {
+            list-style: none;
+            padding-left: 15px;
+        }
+
+        .partners-conditions li {
+            position: relative;
+            margin-bottom: 8px;
+            color: var(--text-main);
+            font-size: 0.82rem;
+        }
+
+        .partners-conditions li::before {
+            content: "✔";
+            position: absolute;
+            left: -18px;
+            color: var(--green-glow);
+        }
+
+        .partners-table-wrapper {
+            overflow-x: auto;
+            margin-top: 10px;
+            width: 100%;
+            border-radius: 12px;
+        }
+
+        .partners-table {
+            width: 100%;
+            min-width: 280px;
+            border-collapse: collapse;
+            text-align: left;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .partners-table th, .partners-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .partners-table th {
+            background: rgba(90, 24, 154, 0.6);
+            color: var(--gold-glow);
+            font-size: 0.8rem;
+        }
+
+        .partners-table td {
+            background: rgba(15, 8, 30, 0.5);
+            font-size: 0.78rem;
+        }
+
+        .partners-table tr:hover td {
+            background: rgba(157, 78, 221, 0.15);
+        }
+
+        .api-section {
+            padding-bottom: 70px;
+        }
+
+        .api-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .content-support-section {
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px dashed var(--green-glow);
+            border-radius: 20px;
+            padding: 16px 12px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .reward-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin: 12px 0;
+        }
+
+        .reward-card {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-color);
+            padding: 8px 5px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .reward-card h4 {
+            color: var(--gold-glow);
+            font-size: 0.78rem;
+            margin-bottom: 3px;
+        }
+
+        .reward-card span {
+            color: var(--green-glow);
+            font-weight: 800;
+            font-size: 0.9rem;
+        }
+
+        .support-notice-box {
+            background: rgba(255, 215, 0, 0.05);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            padding: 10px;
+            border-radius: 12px;
+            color: var(--text-sub);
+            font-size: 0.75rem;
+            margin: 12px 0;
+            text-align: left;
+            line-height: 1.6;
+        }
+
+        .support-action-box {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .support-direct-btn {
+            background: var(--green-glow);
+            color: #000;
+            padding: 10px 24px;
+            border-radius: 12px;
+            font-weight: 800;
+            text-decoration: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+        }
+
+        .support-direct-btn:hover {
+            filter: brightness(1.1);
+            transform: translateY(-2px);
+        }
+
+        .faq-section {
+            padding-bottom: 70px;
+            margin: 0 auto;
+        }
+
+        .faq-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 30px;
+            width: 100%;
+        }
+
+        .faq-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: 0.3s;
+        }
+
+        .faq-header {
+            padding: 20px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 1.05rem;
+            user-select: none;
+        }
+
+        .faq-header i {
+            color: var(--gold-glow);
+            transition: transform 0.3s ease;
+        }
+
+        .faq-body {
+            max-height: 0;
+            overflow: hidden;
+            padding: 0 25px;
+            color: var(--text-sub);
+            font-size: 0.95rem;
+            line-height: 1.8;
+            transition: max-height 0.4s ease, padding 0.4s ease;
+        }
+
+        .faq-item.active {
+            border-color: var(--gold-glow);
+            background: var(--card-hover);
+        }
+
+        .faq-item.active .faq-header i {
+            transform: rotate(180deg);
+        }
+
+        .faq-item.active .faq-body {
+            max-height: 300px;
+            padding: 0 25px 20px;
+        }
+
+        .wallets-section {
+            padding-bottom: 70px;
+            text-align: center;
+        }
+
+        .wallets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+            width: 100%;
+        }
+
+        .wallet-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: 0.3s;
+            text-decoration: none;
+            color: var(--text-main);
+            cursor: pointer;
+        }
+
+        .wallet-item:hover {
+            border-color: var(--gold-glow);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.18);
+            background: var(--card-hover);
+        }
+
+        .wallet-item i {
+            font-size: 1.6rem;
+            color: var(--gold-glow);
+        }
+
+        .wallet-item span {
+            font-size: 0.95rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .main-channels-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 15px;
+            margin-top: 25px;
+            width: 100%;
+        }
+
+        .main-channel-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            text-decoration: none;
+            color: #fff;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .main-channel-card.chan {
+            background: rgba(34, 158, 217, 0.1);
+            border-color: rgba(34, 158, 217, 0.3);
+        }
+
+        .main-channel-card.grp {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .main-channel-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--gold-glow);
+            background: var(--card-hover);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.15);
+        }
+
+        .main-channel-info {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .main-channel-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+        }
+
+        .main-channel-card.chan .main-channel-icon {
+            background: rgba(34, 158, 217, 0.2);
+            color: #38bdf8;
+        }
+
+        .main-channel-card.grp .main-channel-icon {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+        }
+
+        .main-channel-arrow {
+            font-size: 1.1rem;
+            color: var(--text-sub);
+            transition: 0.3s;
+        }
+
+        .main-channel-card:hover .main-channel-arrow {
+            color: var(--gold-glow);
+            transform: translateX(4px);
+        }
+
+        .roadmap-section {
+            padding-bottom: 80px;
+        }
+
+        .roadmap-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 40px 20px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .timeline-container {
+            position: relative;
+            margin-top: 40px;
+            text-align: left;
+            padding-left: 25px;
+        }
+
+        .timeline-container::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            bottom: 10px;
+            left: 8px;
+            width: 3px;
+            background: linear-gradient(to bottom, var(--gold-glow), var(--purple-glow), rgba(255, 255, 255, 0.15));
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 35px;
+        }
+
+        .timeline-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -21px;
+            top: 5px;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--gold-glow);
+            box-shadow: 0 0 10px var(--gold-glow);
+            border: 2px solid var(--bg-dark);
+            z-index: 2;
+        }
+
+        .timeline-item.future .timeline-dot {
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: none;
+        }
+
+        .timeline-content {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 18px 20px;
+            transition: 0.3s;
+        }
+
+        .timeline-item:hover .timeline-content {
+            border-color: var(--gold-glow);
+            background: var(--card-hover);
+        }
+
+        .timeline-item.future .timeline-content {
+            opacity: 0.55;
+            border-style: dashed;
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .timeline-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .timeline-status {
+            font-size: 0.75rem;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-weight: 700;
+        }
+
+        .status-completed {
+            background: rgba(0, 255, 136, 0.12);
+            color: var(--green-glow);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+
+        .status-future {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-sub);
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+        }
+
+        .timeline-desc {
+            font-size: 0.92rem;
+            color: var(--text-sub);
+            line-height: 1.7;
+        }
+
+        .support-float-btn {
+            position: fixed;
+            bottom: 25px;
+            left: 25px;
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            z-index: 990;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(157, 78, 221, 0.6);
+            border: 2px solid var(--gold-glow);
+            overflow: hidden;
+            transition: 0.3s;
+            background: var(--purple-deep);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+        }
+
+        .support-float-btn img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .support-float-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 30px rgba(255, 215, 0, 0.8);
+        }
+
+        footer {
+            background: rgba(5, 3, 12, 0.95);
+            padding: 35px 3%;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-sub);
+            font-size: 0.9rem;
+            width: 100%;
+            font-weight: 700;
+        }
+
+        .footer-email-box {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 215, 0, 0.08);
+            border: 1px solid var(--gold-glow);
+            padding: 8px 18px;
+            border-radius: 20px;
+            margin-top: 15px;
+            color: var(--gold-glow);
+            font-size: 0.9rem;
+            font-family: monospace;
+        }
+
+        .app-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.88);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .app-modal-header {
+            background: rgba(15, 8, 30, 0.98);
+            border-bottom: 1px solid var(--border-color);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .app-modal-back-btn {
+            background: linear-gradient(135deg, var(--gold-glow), var(--gold-accent));
+            color: #000;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+            box-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
+        }
+
+        .app-modal-back-btn:hover {
+            transform: scale(1.05);
+            background: #fff;
+        }
+
+        .app-modal-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-sub);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .app-modal-body {
+            flex: 1;
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background: #000;
+        }
+
+        .app-modal-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .leaders-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 2100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .leaders-modal-box {
+            background: linear-gradient(135deg, rgba(22, 13, 38, 0.98), rgba(15, 8, 30, 0.98));
+            border: 1px solid var(--gold-glow);
+            border-radius: 24px;
+            width: 100%;
+            max-width: 480px;
+            padding: 25px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.9);
+            position: relative;
+            text-align: center;
+        }
+
+        .leaders-modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: var(--text-sub);
+            font-size: 1.3rem;
+            cursor: pointer;
+        }
+
+        .leaders-input-group {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+        }
+
+        .leaders-input {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px 15px;
+            color: #fff;
+            font-family: inherit;
+            font-size: 0.95rem;
+            outline: none;
+            text-align: left;
+            direction: ltr;
+        }
+
+        .leaders-input:focus {
+            border-color: var(--gold-glow);
+        }
+
+        .leaders-btn-search {
+            background: var(--gold-glow);
+            color: #000;
+            border: none;
+            padding: 0 20px;
+            border-radius: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .leaders-btn-search:hover {
+            background: var(--gold-accent);
+        }
+
+        .leaders-result-card {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            display: none;
+            text-align: left;
+        }
+
+        .leaders-result-card.success {
+            background: rgba(0, 255, 136, 0.12);
+            border: 1px solid var(--green-glow);
+            color: #fff;
+        }
+
+        .leaders-result-card.danger {
+            background: rgba(239, 68, 68, 0.12);
+            border: 1px solid #ef4444;
+            color: #fff;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            header { padding: 15px 3%; }
+            .nav-links { display: none; }
+            .hero h1 { font-size: 2rem; }
+            .wallets-grid { grid-template-columns: repeat(2, 1fr); }
+            .reward-grid { grid-template-columns: repeat(2, 1fr); }
+            .contracts-grid { grid-template-columns: 1fr; }
+            .social-grid { grid-template-columns: 1fr 1fr; }
+            .main-channels-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 480px) {
+            .wallets-grid { grid-template-columns: 1fr; }
+            .support-float-btn { width: 55px; height: 55px; bottom: 15px; left: 15px; }
+            .reward-grid { grid-template-columns: 1fr 1fr; }
+            .sidebar { max-width: 100%; }
+            .social-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="web3-canvas"></canvas>
+    <div class="glow-bg"></div>
+
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <button class="sidebar-close-btn" onclick="toggleSidebar()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div class="sidebar-quick-grid">
+            <a onclick="openInAppModal('github.com/peetx2040/PeetX.git', 'GitHub Contract Audit')" class="quick-box">
+                <i class="fa-brands fa-github"></i>
+                <span>GitHub Audit</span>
+            </a>
+            <a onclick="openInAppModal('https://mhamednajem.github.io/Trada/swap.html', 'Swap Platform')" class="quick-box">
+                <i class="fa-solid fa-rotate"></i>
+                <span>Swap Platform</span>
+            </a>
+            <a onclick="openInAppModal('https://mhamednajem.github.io/Trada/on.html', 'Registration Guide')" class="quick-box">
+                <i class="fa-solid fa-user-plus"></i>
+                <span>How to Register</span>
+            </a>
+            <a onclick="openInAppModal('https://mhamednajem.github.io/Trada/on36.html', 'Blockchain Guide')" class="quick-box">
+                <i class="fa-solid fa-globe"></i>
+                <span>Blockchain Guide</span>
+            </a>
+        </div>
+
+        <button class="sidebar-accordion-btn" onclick="toggleAccordion('partnersAccordion', this)">
+            <span><i class="fa-solid fa-handshake"></i> Partners & Upgrade Program</span>
+            <i class="fa-solid fa-chevron-down chevron-icon"></i>
+        </button>
+        <div class="sidebar-accordion-content" id="partnersAccordion">
+            <div class="partners-box">
+                <div class="partners-conditions">
+                    <h3><i class="fa-solid fa-user-shield"></i> Partner Acceptance & Upgrade Conditions:</h3>
+                    <ul>
+                        <li>Build a team of more than <strong>40 active members</strong>.</li>
+                        <li>Provide documented educational guides for members on how to use the platform.</li>
+                        <li>Your team's total trading volume must exceed <strong>$10,000</strong> to get approved and qualify for certified partner salary.</li>
+                    </ul>
+                </div>
+
+                <div class="partners-table-wrapper">
+                    <table class="partners-table">
+                        <thead>
+                            <tr>
+                                <th>Team Size</th>
+                                <th>Required Trading Volume</th>
+                                <th>Monthly Salary</th>
+                                <th>Upgrade & Perks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>100+ Members</strong></td>
+                                <td>More than $50,000</td>
+                                <td><span style="color: var(--green-glow); font-weight: 800;">$1,000 / month</span></td>
+                                <td>Upgrade to <strong style="color: var(--gold-glow);">Certified Partner</strong> + Group Admin to help members</td>
+                            </tr>
+                            <tr>
+                                <td><strong>200+ Members</strong></td>
+                                <td>As per approved ratio</td>
+                                <td><span style="color: var(--green-glow); font-weight: 800;">$2,000 / month</span></td>
+                                <td>Upgrade to <strong style="color: var(--gold-glow);">Elite Leader Partner</strong> + Extensive privileges & direct management</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="ambassador-box">
+                    <div class="ambassador-title">
+                        <i class="fa-solid fa-paper-plane"></i> Contact Ambassador
+                    </div>
+                    <button class="ambassador-btn" onclick="sendAmbassadorMsg()">
+                        <i class="fa-solid fa-paper-plane"></i> Send
+                    </button>
+                    <div class="ambassador-warning" id="ambassadorWarning">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Conditions not met yet. Once conditions are fulfilled, it will unlock automatically via the smart contract.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="sidebar-accordion-btn" onclick="toggleAccordion('contentSupportAccordion', this)">
+            <span><i class="fa-solid fa-video"></i> Content Creator Support</span>
+            <i class="fa-solid fa-chevron-down chevron-icon"></i>
+        </button>
+        <div class="sidebar-accordion-content" id="contentSupportAccordion">
+            <div class="content-support-section">
+                <p style="color: var(--text-sub); font-size: 0.82rem; margin-bottom: 12px;">
+                    Publish an introductory or explanatory video about the PeetX project on any platform (YouTube, TikTok, Facebook, etc.) and earn instant rewards based on view counts:
+                </p>
+
+                <div class="reward-grid">
+                    <div class="reward-card">
+                        <h4>2,000 Views</h4>
+                        <span>Reward: $20</span>
+                    </div>
+                    <div class="reward-card">
+                        <h4>4,000 Views</h4>
+                        <span>Reward: $50</span>
+                    </div>
+                    <div class="reward-card">
+                        <h4>8,000 Views</h4>
+                        <span>Reward: $100</span>
+                    </div>
+                    <div class="reward-card">
+                        <h4>12,000 Views</h4>
+                        <span>Reward: $150</span>
+                    </div>
+                    <div class="reward-card">
+                        <h4>24,000 Views</h4>
+                        <span>Reward: $300</span>
+                    </div>
+                    <div class="reward-card">
+                        <h4>48,000 Views</h4>
+                        <span>Reward: $600</span>
+                    </div>
+                    <div class="reward-card">
+                        <h4>90,000 Views</h4>
+                        <span>Reward: $1200</span>
+                    </div>
+                    <div class="reward-card">
+                        <h4>150,000 Views</h4>
+                        <span>Reward: $3000</span>
+                    </div>
+                </div>
+
+                <div class="support-notice-box">
+                    <p style="color: var(--gold-glow); font-weight: 800; margin-bottom: 5px;"><i class="fa-solid fa-triangle-exclamation"></i> Reward Claim Instructions & Procedures:</p>
+                    <ul style="padding-left: 15px;">
+                        <li>When requesting a reward, conditions will be strictly verified to ensure views are real and authentic.</li>
+                        <li>Please contact technical support and provide: <strong>Your Wallet Address + Page/Video Link + Screenshot of the account proving ownership</strong>.</li>
+                    </ul>
+                </div>
+
+                <div class="support-action-box">
+                    <a onclick="openInAppModal('https://mhamednajem.github.io/Trada/bot.html', 'Technical Support')" class="support-direct-btn">
+                        <i class="fa-solid fa-paper-plane"></i> Send
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar-section-title">
+            <i class="fa-solid fa-user-check"></i> Verification & Accreditation
+        </div>
+        <a onclick="openLeadersModal()" class="sidebar-link-btn leaders-btn">
+            <i class="fa-solid fa-shield-halved" style="color: var(--gold-glow);"></i> Certified Leaders
+        </a>
+
+        <div class="sidebar-section-title">
+            <i class="fa-solid fa-shield-halved"></i> Security & Standards Audits
+        </div>
+        <a onclick="openInAppModal('https://www.certik.com', 'Audit CertiK SOON')" class="sidebar-link-btn">
+            <i class="fa-solid fa-file-shield" style="color: var(--gold-glow);"></i> Audit CertiK SOON
+        </a>
+        <a href="https://www.google.com" target="_blank" class="sidebar-link-btn">
+            <i class="fa-solid fa-code-compare" style="color: #a855f7;"></i>Audit Solidity Scan 
+        </a>
+        <a href="https://google.com" target="_blank" class="sidebar-link-btn">
+            <i class="fa-solid fa-shield-cat" style="color: var(--green-glow);"></i> DeFi Platform Audit
+        </a>
+
+        <div class="sidebar-section-title">
+            <i class="fa-solid fa-paper-plane"></i> Official Communities
+        </div>
+        <a href="https://t.me/PeetX_1" target="_blank" rel="noopener noreferrer" class="sidebar-link-btn telegram-chan">
+            <i class="fa-brands fa-telegram"></i> Official Project Channel
+        </a>
+        <a href="https://t.me/PeetX_2" target="_blank" rel="noopener noreferrer" class="sidebar-link-btn telegram-grp">
+            <i class="fa-brands fa-telegram"></i> Discussion & Admin Group
+        </a>
+
+        <div class="domain-check-box">
+            <div style="font-size: 0.85rem; font-weight: 700; color: #fff;">
+                <i class="fa-solid fa-shield-check" style="color: var(--gold-glow);"></i> Approved Official Domain
+            </div>
+            <div class="domain-badge">peetx.app</div>
+            <p class="domain-warning"><i class="fa-solid fa-triangle-exclamation"></i> This is the only official and verified domain. Beware of fake scam sites!</p>
+        </div>
+    </aside>
+
+    <header>
+        <div class="header-right">
+            <button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="Side Menu">
+                <i class="fa-solid fa-bars-staggered"></i>
+            </button>
+            <div style="position: relative;">
+                <button class="notification-bell-btn" onclick="toggleNotifications()" title="Support Notifications">
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="notification-badge" id="notifBadge">0</span>
+                </button>
+                <div class="notifications-dropdown" id="notifDropdown">
+                    <div class="notifications-header">
+                        <span>Support Notifications</span>
+                        <i class="fa-solid fa-bell" style="font-size: 0.85rem;"></i>
+                    </div>
+                    <div class="notifications-body" id="notifBody">
+                        <div class="notifications-empty">No notifications available</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#main">Home</a></li>
+            <li><a href="#stats">Liquidity & Trading</a></li>
+            <li><a href="#blockchain-edu">Blockchain Guide</a></li>
+            <li><a href="#contracts">Smart Contracts</a></li>
+            <li><a href="#features">Features</a></li>
+            <li><a href="#api-section">Platform API</a></li>
+            <li><a href="#faq">FAQ</a></li>
+            <li><a href="#wallets">Wallets</a></li>
+            <li><a href="#roadmap">Roadmap</a></li>
+        </ul>
+    </header>
+
+    <section class="hero" id="main">
+        <div class="badge">
+            <i class="fa-solid fa-shield-halved"></i> 100% Secure Decentralized Protocol - No Server or Proxy
+        </div>
+        <h1>The Future of Investment & Trading with <span>PeetX</span></h1>
+        <p>A permanent decentralized platform powered by financial intelligence and smart contracts on the BSC network. Automated and direct transfer and trading straight from your wallet without middlemen, ensuring complete security for investment rights.</p>
+    </section>
+
+    <section class="hero-gallery-section">
+        <div class="flip-card-container" onclick="flipNextCard()">
+            <div class="flip-card-inner" id="flipCardInner">
+                <div class="flip-card-face face-1">
+                    <div class="blockchain-art-box">
+                        <div class="art-icon-ring"><i class="fa-solid fa-cubes"></i></div>
+                        <h3 style="color: var(--gold-glow); font-size: 1.3rem; margin-bottom: 8px;">Smart Block Network</h3>
+                        <p style="color: var(--text-sub); font-size: 0.88rem; max-width: 260px;">Encrypted and secure interconnectivity across thousands of decentralized nodes on BSC</p>
+                        <div class="art-nodes-row">
+                            <div class="art-mini-node"><i class="fa-solid fa-link" style="color: var(--green-glow);"></i> Secure Node</div>
+                            <div class="art-mini-node"><i class="fa-solid fa-shield" style="color: var(--gold-glow);"></i> 100% Protection</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flip-card-face face-2">
+                    <div class="blockchain-art-box">
+                        <div class="art-icon-ring" style="border-color: var(--green-glow); color: var(--green-glow); background: rgba(0,255,136,0.1);"><i class="fa-solid fa-file-contract"></i></div>
+                        <h3 style="color: var(--green-glow); font-size: 1.3rem; margin-bottom: 8px;">Automated Smart Contracts</h3>
+                        <p style="color: var(--text-sub); font-size: 0.88rem; max-width: 260px;">Instant execution of financial transactions and profits without human intermediaries</p>
+                        <div class="art-nodes-row">
+                            <div class="art-mini-node"><i class="fa-solid fa-bolt" style="color: var(--gold-glow);"></i> Instant Execution</div>
+                            <div class="art-mini-node"><i class="fa-solid fa-check-double" style="color: var(--green-glow);"></i> Confirmed</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flip-card-face face-3">
+                    <div class="blockchain-art-box">
+                        <div class="art-icon-ring" style="border-color: var(--purple-glow); color: var(--purple-glow); background: rgba(157,78,221,0.15);"><i class="fa-solid fa-network-wired"></i></div>
+                        <h3 style="color: var(--purple-glow); font-size: 1.3rem; margin-bottom: 8px;">Liquidity & P2P Trading</h3>
+                        <p style="color: var(--text-sub); font-size: 0.88rem; max-width: 260px;">Direct connection between personal wallets and automated market maker protocols</p>
+                        <div class="art-nodes-row">
+                            <div class="art-mini-node"><i class="fa-solid fa-droplet" style="color: var(--gold-glow);"></i> Deep Liquidity</div>
+                            <div class="art-mini-node"><i class="fa-solid fa-wallet" style="color: var(--green-glow);"></i> Absolute Control</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="showcase-container">
+        <div class="slider-wrapper">
+            <div class="slide slide-1 active">
+                <div class="slide-content">
+                    <span class="slide-tag">Secure Trading</span>
+                    <h3 class="slide-title">Automated Transfer & Trading Without Third Parties</h3>
+                    <p class="slide-desc">Execution happens automatically through BSC smart contracts without any proxy, server, or external bot.</p>
+                </div>
+            </div>
+            <div class="slide slide-2">
+                <div class="slide-content">
+                    <span class="slide-tag">Guaranteed Rights</span>
+                    <h3 class="slide-title">Membership & Profit Protection</h3>
+                    <p class="slide-desc">Every investor has documented rights guaranteeing their ownership and profits within the continuous decentralized system.</p>
+                </div>
+            </div>
+            <div class="slide slide-3">
+                <div class="slide-content">
+                    <span class="slide-tag" style="background: var(--purple-glow); color: #fff;">Sustainable Investment</span>
+                    <h3 class="slide-title">Smart Investment Ecosystem</h3>
+                    <p class="slide-desc">Capital protection and transparent distribution via official smart contracts.</p>
+                </div>
+            </div>
+            <div class="slide slide-4">
+                <div class="slide-content">
+                    <span class="slide-tag" style="background: var(--green-glow);">BSC Network</span>
+                    <h3 class="slide-title">Lightning Speed & Low Fees</h3>
+                    <p class="slide-desc">Execute financial operations at blazing speeds with maximum levels of encryption and security.</p>
+                </div>
+            </div>
+            <div class="slide slide-5">
+                <div class="slide-content">
+                    <span class="slide-tag" style="background: #ef4444; color: #fff;">Absolute Independence</span>
+                    <h3 class="slide-title">Un-stoppable & Un-freezable Contract</h3>
+                    <p class="slide-desc">A protocol operating with complete autonomy on the blockchain without direct human control.</p>
+                </div>
+            </div>
+
+            <div class="slider-nav">
+                <div class="dot active" onclick="goToSlide(0)"></div>
+                <div class="dot" onclick="goToSlide(1)"></div>
+                <div class="dot" onclick="goToSlide(2)"></div>
+                <div class="dot" onclick="goToSlide(3)"></div>
+                <div class="dot" onclick="goToSlide(4)"></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="stats-section" id="stats">
+        <h2 class="section-title">Liquidity Metrics & <span style="color: var(--gold-glow);">Live Trading Volume</span></h2>
+        <p class="section-desc">Live and automated monitoring of provided liquidity and daily trading volume from PancakeSwap protocols and the PeetX contract on the BSC network (Pool Address: 0x6fe9e9de56356f7edbfcbb29fab7cd69471a4869)</p>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-top">
+                    <div class="stat-icon"><i class="fa-solid fa-droplet"></i></div>
+                    <span class="live-tag"><span class="live-dot"></span> Live</span>
+                </div>
+                <p style="color: var(--text-sub); font-size: 0.9rem; font-weight: 700;">Total Liquidity Locked (TLL)</p>
+                <div class="stat-val" id="liquidity">$1,250,000</div>
+                <p style="color: var(--green-glow); font-size: 0.8rem;"><i class="fa-solid fa-shield-check"></i> Permanently locked in LP Burn contract</p>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-top">
+                    <div class="stat-icon"><i class="fa-solid fa-chart-line"></i></div>
+                    <span class="live-tag"><span class="live-dot"></span> 24h</span>
+                </div>
+                <p style="color: var(--text-sub); font-size: 0.9rem; font-weight: 700;">24h Trading Volume</p>
+                <div class="stat-val" id="volume">$340,500</div>
+                <p style="color: var(--gold-glow); font-size: 0.8rem;"><i class="fa-solid fa-arrow-trend-up"></i> Live updates via DexScreener</p>
+            </div>
+        </div>
+
+        <div class="liquidity-explain-box">
+            <h3 style="color: var(--gold-glow); font-size: 1.15rem; margin-bottom: 10px;">
+                <i class="fa-solid fa-chart-area"></i> Interactive Liquidity & Trading Growth Chart
+            </h3>
+            <p style="color: var(--text-sub); font-size: 0.88rem; line-height: 1.7;">
+                This data is fed automatically and directly from Automated Market Makers (AMM) contracts and the BSC network, providing absolute transparency for asset movement and confirming the stability of the financial system for investors.
+            </p>
+            <div class="chart-wrapper">
+                <canvas id="liquidityChart"></canvas>
+            </div>
+        </div>
+    </section>
+
+    <section class="blockchain-edu-section" id="blockchain-edu">
+        <h2 class="section-title"><span style="color: var(--gold-glow);">Blockchain Concepts Guide</span></h2>
+        <p class="section-desc">Learn about decentralized technology and how your transactions are executed intelligently with full security</p>
+
+        <div class="edu-grid">
+            <div class="edu-card">
+                <div class="edu-diagram">
+                    <div class="block-node"><i class="fa-solid fa-cube"></i></div>
+                    <div class="block-chain-link"></div>
+                    <div class="block-node"><i class="fa-solid fa-link"></i></div>
+                    <div class="block-chain-link"></div>
+                    <div class="block-node"><i class="fa-solid fa-cube"></i></div>
+                </div>
+                <h3 style="color: var(--gold-glow); font-size: 1.1rem; margin-bottom: 8px;">Decentralized Block Chain</h3>
+                <p style="color: var(--text-sub); font-size: 0.88rem;">An extended and encrypted digital ledger across thousands of devices, impossible to hack or tamper with after recording.</p>
+            </div>
+
+            <div class="edu-card">
+                <div class="edu-diagram">
+                    <i class="fa-solid fa-file-contract" style="font-size: 2.2rem; color: var(--purple-glow);"></i>
+                    <i class="fa-solid fa-arrows-left-right" style="font-size: 1.2rem; color: var(--gold-glow);"></i>
+                    <i class="fa-solid fa-user-check" style="font-size: 2.2rem; color: var(--green-glow);"></i>
+                </div>
+                <h3 style="color: var(--gold-glow); font-size: 1.1rem; margin-bottom: 8px;">Automated Smart Contracts</h3>
+                <p style="color: var(--text-sub); font-size: 0.88rem;">Self-executing software that accurately applies agreement terms between parties once conditions are met without any human intervention.</p>
+            </div>
+
+            <div class="edu-card">
+                <div class="edu-diagram">
+                    <i class="fa-solid fa-wallet" style="font-size: 2rem; color: var(--gold-glow);"></i>
+                    <i class="fa-solid fa-shield-halved" style="font-size: 2.2rem; color: var(--green-glow);"></i>
+                </div>
+                <h3 style="color: var(--gold-glow); font-size: 1.1rem; margin-bottom: 8px;">Direct Ownership & Security</h3>
+                <p style="color: var(--text-sub); font-size: 0.88rem;">Your assets always remain under your complete control in your personal wallet; transactions occur in a direct Peer-to-Peer manner.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="contracts-section" id="contracts">
+        <h2 class="section-title"><span style="color: var(--gold-glow);">PeetX Project Smart Contracts</span></h2>
+        <p class="section-desc">A trusted network of contracts working in complete harmony to manage governance, trading, and profit distribution automatically</p>
+
+        <div class="contracts-grid">
+            <div class="contract-card">
+                <div class="contract-header">
+                    <span class="contract-title"><i class="fa-solid fa-chart-line"></i> Trading & Investment Contract</span>
+                </div>
+                <div class="contract-box">
+                    <span class="contract-address" id="c-addr-0">0x6fe9e9de56356f7edbfcbb29fab7cd69471a4869</span>
+                    <button class="btn-copy" onclick="copyAddress('c-addr-0', this)">Copy</button>
+                </div>
+            </div>
+
+            <div class="contract-card">
+                <div class="contract-header">
+                    <span class="contract-title"><i class="fa-solid fa-trophy"></i> Leaders Competition Contract</span>
+                </div>
+                <div class="contract-box">
+                    <span class="contract-address" id="c-addr-leaders">0x68eB7a583F1eca31b90F46fd4e246C8cE2d973d4</span>
+                    <button class="btn-copy" onclick="copyAddress('c-addr-leaders', this)">Copy</button>
+                </div>
+            </div>
+
+            <div class="contract-card">
+                <div class="contract-header">
+                    <span class="contract-title"><i class="fa-solid fa-users-gear"></i> DAO Organization Contract</span>
+                </div>
+                <div class="contract-box">
+                    <span class="contract-address" id="c-addr-dao">0x46A15B0b27311cedF172AB29E4f4766fbE7F4364</span>
+                    <button class="btn-copy" onclick="copyAddress('c-addr-dao', this)">Copy</button>
+                </div>
+            </div>
+
+            <div class="contract-card">
+                <div class="contract-header">
+                    <span class="contract-title"><i class="fa-solid fa-water-pool"></i> Pool Contract</span>
+                </div>
+                <div class="contract-box">
+                    <span class="contract-address" id="c-addr-1">0x6fe9e9de56356f7edbfcbb29fab7cd69471a4869</span>
+                    <button class="btn-copy" onclick="copyAddress('c-addr-1', this)">Copy</button>
+                </div>
+            </div>
+
+            <div class="contract-card">
+                <div class="contract-header">
+                    <span class="contract-title"><i class="fa-solid fa-money-bill-transfer"></i> Chainlink Data Fund Transfers</span>
+                </div>
+                <div class="contract-box">
+                    <span class="contract-address" id="c-addr-2">0x68eB7a583F1eca31b90F46fd4e246C8cE2d973d4</span>
+                    <button class="btn-copy" onclick="copyAddress('c-addr-2', this)">Copy</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="blue-gap-spacer"></div>
+
+    <section class="features-section" id="features">
+        <h2 class="section-title">Key Features & <span style="color: var(--gold-glow);">System Advantages</span></h2>
+        <p class="section-desc">Designed to provide a unique decentralized experience combining transparency, high speed, and sustainable returns</p>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                <h3 class="feature-title">Maximum Security & Immutability</h3>
+                <p class="feature-desc">Contracts deployed on the BSC network cannot be altered or shut down by any central entity once created.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fa-solid fa-bolt"></i></div>
+                <h3 class="feature-title">Instant Automated Execution</h3>
+                <p class="feature-desc">All swaps, profit allocations, and liquidity pools operate automatically in real-time via smart code.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fa-solid fa-eye"></i></div>
+                <h3 class="feature-title">Full Blockchain Transparency</h3>
+                <p class="feature-desc">Every transaction, pool ratio, and smart contract execution is public and verifiable on BscScan anytime.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fa-solid fa-diagram-project"></i></div>
+                <h3 class="feature-title">Decentralized DAO Governance</h3>
+                <p class="feature-desc">Community-driven growth model giving members direct voting power through audited governance mechanisms.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="api-section" id="api-section">
+        <h2 class="section-title"><span style="color: var(--gold-glow);">PeetX Web3 Platform API</span></h2>
+        <p class="section-desc">Connect directly to our decentralized smart contracts via Web3 JSON-RPC end points for real-time data streaming</p>
+
+        <div class="api-card">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+                <span style="color: var(--gold-glow); font-weight: 800; font-family: monospace;">REST / Web3 Endpoint</span>
+                <span class="live-tag"><span class="live-dot"></span> Active BSC RPC</span>
+            </div>
+            <div class="contract-box">
+                <span class="contract-address" id="api-endpoint-url">https://bsc-dataseed.binance.org/</span>
+                <button class="btn-copy" onclick="copyAddress('api-endpoint-url', this)">Copy RPC</button>
+            </div>
+        </div>
+    </section>
+
+    <section class="faq-section" id="faq">
+        <h2 class="section-title">Frequently Asked <span style="color: var(--gold-glow);">Questions</span></h2>
+        <p class="section-desc">Clear answers regarding platform operation, security standards, and decentralized smart contracts</p>
+
+        <div class="faq-container">
+            <div class="faq-item">
+                <div class="faq-header" onclick="toggleFaq(this)">
+                    <span>What is PeetX and how does it work?</span>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </div>
+                <div class="faq-body">
+                    PeetX is a fully decentralized Web3 protocol operating on the Binance Smart Chain (BSC). Transactions and profit distributions are governed automatically by smart contracts without central servers or human intervention.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-header" onclick="toggleFaq(this)">
+                    <span>Are my funds secure on PeetX?</span>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </div>
+                <div class="faq-body">
+                    Yes. PeetX utilizes non-custodial interaction model. Your tokens stay directly inside your private wallet (MetaMask, Trust Wallet, etc.) until peer-to-peer or liquidity transactions are initiated by you.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-header" onclick="toggleFaq(this)">
+                    <span>How do I start trading or participating?</span>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </div>
+                <div class="faq-body">
+                    Connect any Web3-compatible crypto wallet to our Swap Platform, ensure you have BNB for network gas fees, and interact directly with our verified BSC smart contracts.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="wallets-section" id="wallets">
+        <h2 class="section-title">Supported <span style="color: var(--gold-glow);">Web3 Wallets</span></h2>
+        <p class="section-desc">Connect seamlessly using your favorite non-custodial Web3 provider</p>
+
+        <div class="wallets-grid">
+            <div class="wallet-item">
+                <i class="fa-solid fa-wallet"></i>
+                <span>MetaMask</span>
+            </div>
+            <div class="wallet-item">
+                <i class="fa-solid fa-shield-cat"></i>
+                <span>Trust Wallet</span>
+            </div>
+            <div class="wallet-item">
+                <i class="fa-solid fa-link"></i>
+                <span>WalletConnect</span>
+            </div>
+            <div class="wallet-item">
+                <i class="fa-solid fa-vault"></i>
+                <span>SafePal</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="social-channels-section">
+        <h2 class="section-title">Official <span style="color: var(--gold-glow);">Social Channels</span></h2>
+        <p class="section-desc">Stay tuned for upcoming channel launches and official media updates</p>
+
+        <div class="main-channels-grid">
+            <a href="https://t.me/PeetX_1" target="_blank" rel="noopener noreferrer" class="main-channel-card chan">
+                <div class="main-channel-info">
+                    <div class="main-channel-icon"><i class="fa-brands fa-telegram"></i></div>
+                    <div>
+                        <div style="font-weight: 800; font-size: 1rem;">PeetX Channel</div>
+                        <div style="font-size: 0.8rem; color: var(--text-sub);">Official Announcements</div>
+                    </div>
+                </div>
+                <i class="fa-solid fa-arrow-right main-channel-arrow"></i>
+            </a>
+
+            <a href="https://t.me/PeetX_2" target="_blank" rel="noopener noreferrer" class="main-channel-card grp">
+                <div class="main-channel-info">
+                    <div class="main-channel-icon"><i class="fa-brands fa-telegram"></i></div>
+                    <div>
+                        <div style="font-weight: 800; font-size: 1rem;">PeetX Group</div>
+                        <div style="font-size: 0.8rem; color: var(--text-sub);">Community Chat & Support</div>
+                    </div>
+                </div>
+                <i class="fa-solid fa-arrow-right main-channel-arrow"></i>
+            </a>
+        </div>
+
+        <div class="social-grid">
+            <div class="social-card youtube">
+                <span class="coming-soon-badge">SOON</span>
+                <div class="social-info">
+                    <div class="social-icon"><i class="fa-brands fa-youtube"></i></div>
+                    <div>
+                        <div style="font-weight: 800;">YouTube</div>
+                        <div style="font-size: 0.75rem; color: var(--text-sub);">Video Guides</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="social-card facebook">
+                <span class="coming-soon-badge">SOON</span>
+                <div class="social-info">
+                    <div class="social-icon"><i class="fa-brands fa-facebook"></i></div>
+                    <div>
+                        <div style="font-weight: 800;">Facebook</div>
+                        <div style="font-size: 0.75rem; color: var(--text-sub);">Community Hub</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="social-card tiktok">
+                <span class="coming-soon-badge">SOON</span>
+                <div class="social-info">
+                    <div class="social-icon"><i class="fa-brands fa-tiktok"></i></div>
+                    <div>
+                        <div style="font-weight: 800;">TikTok</div>
+                        <div style="font-size: 0.75rem; color: var(--text-sub);">Short News</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="social-card twitter">
+                <span class="coming-soon-badge">SOON</span>
+                <div class="social-info">
+                    <div class="social-icon"><i class="fa-brands fa-x-twitter"></i></div>
+                    <div>
+                        <div style="font-weight: 800;">X (Twitter)</div>
+                        <div style="font-size: 0.75rem; color: var(--text-sub);">Live Updates</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="roadmap-section" id="roadmap">
+        <div class="roadmap-box">
+            <h2 class="section-title"><span style="color: var(--gold-glow);">Project Roadmap</span></h2>
+            <p class="section-desc">Strategic milestones for PeetX continuous growth and Web3 innovation</p>
+
+            <div class="timeline-container">
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <span class="timeline-title">Phase 1: Foundation & Smart Contracts</span>
+                            <span class="timeline-status status-completed">Completed</span>
+                        </div>
+                        <p class="timeline-desc">Deployment of core smart contracts on BSC, Liquidity Pool establishment, and initial security audits.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <span class="timeline-title">Phase 2: Decentralized Swap & DAO Launch</span>
+                            <span class="timeline-status status-completed">Completed</span>
+                        </div>
+                        <p class="timeline-desc">Integration of automated market maker protocols, peer-to-peer swap interface, and DAO community system.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item future">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <span class="timeline-title">Phase 3: Cross-Chain Expansion & CertiK Audit</span>
+                            <span class="timeline-status status-future">In Progress</span>
+                        </div>
+                        <p class="timeline-desc">Expanding liquidity to additional EVM-compatible chains and completing tier-1 security audits.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <a onclick="openInAppModal('https://mhamednajem.github.io/Trada/bot.html', 'Technical Support')" class="support-float-btn" title="Direct Technical Support">
+        <i class="fa-solid fa-headset" style="font-size: 1.6rem; color: var(--gold-glow);"></i>
+    </a>
+
+    <footer>
+        <p>&copy; 2026 PeetX Decentralized Protocol. All Rights Reserved.</p>
+        <div class="footer-email-box">
+            <i class="fa-solid fa-envelope"></i> support@peetx.app
+        </div>
+    </footer>
+
+    <!-- App Modal Overlay -->
+    <div class="app-modal-overlay" id="appModalOverlay">
+        <div class="app-modal-header">
+            <button class="app-modal-back-btn" onclick="closeInAppModal()">
+                <i class="fa-solid fa-arrow-left"></i> Close
+            </button>
+            <div class="app-modal-title" id="appModalTitle">PeetX Application</div>
+        </div>
+        <div class="app-modal-body">
+            <iframe class="app-modal-iframe" id="appModalIframe" src="about:blank"></iframe>
+        </div>
+    </div>
+
+    <!-- Leaders Modal Overlay -->
+    <div class="leaders-modal-overlay" id="leadersModalOverlay">
+        <div class="leaders-modal-box">
+            <button class="leaders-modal-close" onclick="closeLeadersModal()"><i class="fa-solid fa-xmark"></i></button>
+            <h3 style="color: var(--gold-glow); font-size: 1.2rem; margin-bottom: 8px;">
+                <i class="fa-solid fa-shield-halved"></i> Verify Certified Leader
+            </h3>
+            <p style="color: var(--text-sub); font-size: 0.85rem;">Enter Leader's BSC Wallet Address to check verification status:</p>
+            
+            <div class="leaders-input-group">
+                <input type="text" class="leaders-input" id="leaderSearchInput" placeholder="0x..." />
+                <button class="leaders-btn-search" onclick="verifyLeaderAddress()">Verify</button>
+            </div>
+
+            <div class="leaders-result-card" id="leaderResultCard"></div>
+        </div>
+    </div>
+
+    <script>
+        // Canvas Web3 Animation Background
+        const canvas = document.getElementById('web3-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.8;
+                this.vy = (Math.random() - 0.5) * 0.8;
+                this.radius = Math.random() * 2 + 1;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(157, 78, 221, 0.5)';
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particles = [];
+            const count = Math.min(Math.floor(window.innerWidth / 20), 60);
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle());
+            }
+        }
+        initParticles();
+
+        function animateCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+
+                    if (dist < 120) {
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.strokeStyle = `rgba(255, 215, 0, ${0.15 - dist / 800})`;
+                        ctx.lineWidth = 0.8;
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(animateCanvas);
+        }
+        animateCanvas();
+
+        // UI Interactions
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        function toggleAccordion(id, btn) {
+            const content = document.getElementById(id);
+            btn.classList.toggle('active');
+            content.classList.toggle('active');
+        }
+
+        function toggleNotifications() {
+            const dropdown = document.getElementById('notifDropdown');
+            dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        function toggleFaq(header) {
+            const item = header.parentElement;
+            item.classList.toggle('active');
+        }
+
+        function copyAddress(elementId, btn) {
+            const text = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = btn.innerText;
+                btn.innerText = 'Copied!';
+                btn.style.background = 'var(--green-glow)';
+                btn.style.color = '#000';
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.background = '';
+                    btn.style.color = '';
+                }, 2000);
+            });
+        }
+
+        // Hero Card Flip Logic
+        let cardAngle = 0;
+        function flipNextCard() {
+            cardAngle += 120;
+            document.getElementById('flipCardInner').style.transform = `rotateY(${cardAngle}deg)`;
+        }
+
+        // Slider Navigation
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const dots = document.querySelectorAll('.dot');
+
+        function goToSlide(index) {
+            slides[currentSlide].classList.remove('active');
+            dots[currentSlide].classList.remove('active');
+            currentSlide = index;
+            slides[currentSlide].classList.add('active');
+            dots[currentSlide].classList.add('active');
+        }
+
+        setInterval(() => {
+            let next = (currentSlide + 1) % slides.length;
+            goToSlide(next);
+        }, 5000);
+
+        // Ambassador Trigger Warning
+        function sendAmbassadorMsg() {
+            const warning = document.getElementById('ambassadorWarning');
+            warning.style.display = 'block';
+        }
+
+        // In-App Modal Handler
+        function openInAppModal(url, title) {
+            document.getElementById('appModalTitle').innerText = title;
+            document.getElementById('appModalIframe').src = url;
+            document.getElementById('appModalOverlay').style.display = 'flex';
+        }
+
+        function closeInAppModal() {
+            document.getElementById('appModalOverlay').style.display = 'none';
+            document.getElementById('appModalIframe').src = 'about:blank';
+        }
+
+        // Leaders Modal Handler
+        function openLeadersModal() {
+            document.getElementById('leadersModalOverlay').style.display = 'flex';
+        }
+
+        function closeLeadersModal() {
+            document.getElementById('leadersModalOverlay').style.display = 'none';
+            document.getElementById('leaderResultCard').style.display = 'none';
+        }
+
+        function verifyLeaderAddress() {
+            const val = document.getElementById('leaderSearchInput').value.trim();
+            const card = document.getElementById('leaderResultCard');
+            if (!val) return;
+
+            card.style.display = 'block';
+            if (val.length === 42 && val.startsWith('0x')) {
+                card.className = 'leaders-result-card success';
+                card.innerHTML = `<strong><i class="fa-solid fa-circle-check"></i> Certified Leader Verified</strong><br><span style="font-size:0.8rem; word-break:break-all;">Address: ${val} is an officially accredited PeetX network leader.</span>`;
+            } else {
+                card.className = 'leaders-result-card danger';
+                card.innerHTML = `<strong><i class="fa-solid fa-triangle-exclamation"></i> Unverified Address</strong><br><span style="font-size:0.8rem;">The provided address is not recognized among certified project leaders.</span>`;
+            }
+        }
+
+        // Chart Initialization
+        window.addEventListener('load', () => {
+            const ctxChart = document.getElementById('liquidityChart').getContext('2d');
+            new Chart(ctxChart, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
+                    datasets: [
+                        {
+                            label: 'Liquidity ($)',
+                            data: [400000, 550000, 700000, 850000, 920000, 1050000, 1100000, 1180000, 1250000],
+                            borderColor: '#ffd700',
+                            backgroundColor: 'rgba(255, 215, 0, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Volume ($)',
+                            data: [80000, 120000, 190000, 220000, 280000, 310000, 290000, 330000, 340500],
+                            borderColor: '#9d4edd',
+                            backgroundColor: 'rgba(157, 78, 221, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#c4b5fd' }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: '#c4b5fd' },
+                            grid: { color: 'rgba(255,255,255,0.05)' }
+                        },
+                        y: {
+                            ticks: { color: '#c4b5fd' },
+                            grid: { color: 'rgba(255,255,255,0.05)' }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
